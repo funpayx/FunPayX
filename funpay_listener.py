@@ -1,6 +1,7 @@
 from fpx import FunPayTools, Message, Dependency
 from aiogram import Bot
 import logging
+import asyncio
 
 from config import GKEY
 from fpworker.routers.message import router as msg_router
@@ -16,5 +17,9 @@ async def funpaymain():
             logging.info('Слушатель funpay запущен')
 
         fp.router.include_router(msg_router)
-
-        await fp.runner.start_polling(1, is_background=False)
+        try:
+            await fp.runner.start_polling(1, is_background=False)
+        except asyncio.CancelledError:
+            logging.info('Слушатель получил сигнал завершения')
+            await fp.shutdown()
+            raise

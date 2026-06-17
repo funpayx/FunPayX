@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from core.logic.user import UserLogic
+from client.keyboards.main_menu import main_menu_kb
 
 router = Router()
 
@@ -14,7 +15,7 @@ class Auth(StatesGroup):
 async def cmd_start(message: types.Message, state: FSMContext, db):
     user = UserLogic(db, message.from_user.id)
     if await user.is_authorized():
-        return await message.answer('Добро пожаловать')
+        return await message.answer('Добро пожаловать', reply_markup=main_menu_kb())
     await message.answer('Введи свой пароль')
     await state.set_state(Auth.waiting_password)
 
@@ -22,12 +23,12 @@ async def cmd_start(message: types.Message, state: FSMContext, db):
 async def auth_processing(message: types.Message, state: FSMContext, db):
     user = UserLogic(db, message.from_user.id)
     if await user.auth(message.text):
-        return await message.answer('Добро пожаловать')
+        return await message.answer('Добро пожаловать', reply_markup=main_menu_kb())
     
 @router.callback_query(F.data == 'main_menu')
 async def main_menu(callback: types.CallbackQuery, state: FSMContext, db):
     user = UserLogic(db, callback.from_user.id)
     if await user.is_authorized():
-        return await callback.message.edit_text('Добро пожаловать')
+        return await callback.message.edit_text('Добро пожаловать', reply_markup=main_menu_kb())
     await callback.message.edit_text('Введи свой пароль')
     await state.set_state(Auth.waiting_password)
