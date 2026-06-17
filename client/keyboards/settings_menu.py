@@ -85,7 +85,7 @@ def _paginate_blacklist(
     builder.row(
         InlineKeyboardButton(
             text="➕ Добавить в ЧС",
-            callback_data="blacklist:add_prompt",
+            callback_data=f"blacklist:add_prompt:{page}",
         )
     )
     builder.row(

@@ -1,11 +1,17 @@
 from aiogram import F, types, Router
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 from client.keyboards.settings_menu import settings_menu, _paginate_blacklist
 from core.logic.settings import Settings
 from utils.config_manager import config_manager
+from client.keyboards.main_menu import back_to_main_menu
 
 
 router = Router()
+
+class BlacklistAdding(StatesGroup):
+    user_name = State()
 
 @router.callback_query(F.data == 'settings_menu')
 async def open_settings(callback: types.CallbackQuery):
@@ -29,3 +35,18 @@ async def blacklist_remove(callback: types.CallbackQuery):
     settings = Settings()
     await settings.toggle_user_msg_filter(user_name)
     return await callback.message.edit_text('Выбери опцию', reply_markup=_paginate_blacklist(config_manager.blacklist_buyers, page))
+
+@router.callback_query(F.data.startswith('blacklist:add_prompt:'))
+async def blacklist_adding_first(callback: types.CallbackGame, state: FSMContext):
+    page = callback.data.split(':')[-1]
+    await callback.message.edit_text('Введите имя пользователя, сообщения которого хотите игноировать.', reply_markup=back_to_main_menu())
+    await state.set_state(BlacklistAdding.user_name)
+    await state.update_data(page=page)
+
+@router.message(BlacklistAdding.user_name)
+async def blacklist_adding_second(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    page = data.get('page')
+    settings = Settings()
+    await settings.toggle_user_msg_filter(message.text)
+    await message.answer('Успешно установлено!', reply_markup=_paginate_blacklist(config_manager.blacklist_buyers, page))

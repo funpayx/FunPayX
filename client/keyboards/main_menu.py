@@ -11,3 +11,13 @@ def main_menu_kb() -> InlineKeyboardMarkup:
         )
     )
     return builder.as_markup()
+
+def back_to_main_menu() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text='Главное меню',
+            callback_data='main_menu',
+            style='danger'
+        )
+    )
