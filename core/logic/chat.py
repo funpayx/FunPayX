@@ -12,10 +12,10 @@ class ChatLogic:
         self.bot: Bot = BotManager.get()
         self.repo = ChatRepo(db)
 
-    async def message_all_users(self, text):
+    async def message_all_users(self, **kwargs):
         users = await self.repo.get_user_list()
         for user in users:
             try:
-                await self.bot.send_message(user.user_id, text)
+                await self.bot.send_message(user.user_id, **kwargs)
             except Exception as e:
                 logging.info(f'При отправке сообщения произошла ошибка: {e}')

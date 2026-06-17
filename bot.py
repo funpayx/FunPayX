@@ -10,6 +10,7 @@ from utils.bot_manager import BotManager
 from client.routers.error import router as error_router
 from client.routers.common import router as common_router
 from client.routers.settings import router as setting_router
+from client.routers.events import router as event_router
 
 router = Router()
 @router.error()
@@ -25,7 +26,7 @@ async def botmain():
     dp.update.middleware.register(DbSessionMiddleware(Session))
 
     dp.include_router(error_router)
-    dp.include_routers(common_router, setting_router)
+    dp.include_routers(common_router, setting_router, event_router)
     
     logging.info('Бот запущен')
     await dp.start_polling(bot)
