@@ -11,17 +11,34 @@ def _status_icon(enabled: bool) -> str:
 
 def settings_menu() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    icon = _status_icon(config_manager.new_message_notifications)
     builder.row(
         InlineKeyboardButton(
-            text=f"Уведомлять о новых сообщениях: {icon}",
-            callback_data="settings:toggle_notifications",
+            text=f"Уведомлять о новых сообщениях: {_status_icon(config_manager.new_message_notifications)}",
+            callback_data="notify:toggle_messages",
         )
     )
     builder.row(
         InlineKeyboardButton(
-            text="Чёрный список отправителей",
-            callback_data="blacklist:page:0",
+            text=f"Уведомлять о новых заказах: {_status_icon(config_manager.new_order_notifications)}",
+            callback_data="notify:toggle_new_orders",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f"Уведомлять о подтвержденных заказах: {_status_icon(config_manager.closed_order_notifications)}",
+            callback_data="notify:toggle_closed_orders",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f"Уведомлять о возвратах: {_status_icon(config_manager.refunded_order_notifications)}",
+            callback_data="notify:toggle_refunded_orders",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f"Уведомлять о новых отзывах: {_status_icon(config_manager.new_review_notifications)}",
+            callback_data="notify:toggle_new_reviews",
         )
     )
     builder.row(

@@ -6,8 +6,14 @@ def main_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
-            text="Настройки",
+            text="Настройки уведомлений",
             callback_data="settings_menu",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="Чёрный список",
+            callback_data="blacklist:page:0",
         )
     )
     return builder.as_markup()
@@ -21,3 +27,4 @@ def back_to_main_menu() -> InlineKeyboardMarkup:
             style='danger'
         )
     )
+    return builder.as_markup()

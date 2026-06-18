@@ -17,10 +17,11 @@ class BlacklistAdding(StatesGroup):
 async def open_settings(callback: types.CallbackQuery):
     return await callback.message.edit_text('Выбери опцию:', reply_markup=settings_menu())
 
-@router.callback_query(F.data == 'settings:toggle_notifications')
+@router.callback_query(F.data.startswith('notify:'))
 async def toggle_notify(callback: types.CallbackQuery):
+    option = callback.data.split(':')[-1]
     settings = Settings()
-    await settings.toggle_notifications()
+    await settings.toggle_notifications(option)
     return await callback.message.edit_text('Выбери опцию', reply_markup=settings_menu())
 
 @router.callback_query(F.data.startswith('blacklist:page:'))
