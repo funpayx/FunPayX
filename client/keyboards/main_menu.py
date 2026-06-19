@@ -12,8 +12,14 @@ def main_menu_kb() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(
-            text="Чёрный список",
+            text="📃 Чёрный список",
             callback_data="blacklist:page:0",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="👋 Приветственное сообщение",
+            callback_data="meeting:set",
         )
     )
     return builder.as_markup()

@@ -6,6 +6,7 @@ from config import BOT_TOKEN
 from client.middlewares.db_session import DbSessionMiddleware
 from core.database.engine import Session, init_db
 from utils.bot_manager import BotManager
+from utils.config_manager import config_manager
 
 from client.routers.error import router as error_router
 from client.routers.common import router as common_router
@@ -22,7 +23,7 @@ async def botmain():
     bot = BotManager.get()
     dp = Dispatcher()
     await init_db()
-
+    await config_manager.load_config()
     dp.update.middleware.register(DbSessionMiddleware(Session))
 
     dp.include_router(error_router)

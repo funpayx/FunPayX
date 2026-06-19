@@ -1,6 +1,10 @@
 from fpx import Message, Order, CurReview
+from sqlalchemy import select
+from datetime import timedelta, datetime
 
 from utils.config_manager import config_manager
+from core.database.engine import Session
+from core.database.models import MeetingCooldowns
 
 
 class FunPayController:
@@ -11,11 +15,24 @@ class FunPayController:
             return False
         if message.sender in config_manager.blacklist_buyers:
             return False
+        if config_manager.welcome_msg['enabled']:
+            if message.is_system != config_manager.welcome_msg['ignore_system']:
+                async with Session() as db:
+                    res = await db.execute(select(MeetingCooldowns).where(MeetingCooldowns.chat_id == message.chat_id))
+                    cd: MeetingCooldowns = res.scalar_one_or_none()
+                    if cd and config_manager.welcome_msg['only_new']:
+                        pass
+                    elif not cd or (cd.meet_time + timedelta(hours=config_manager.welcome_msg['time']) < datetime.now()):
+                        await message.answer(config_manager.welcome_msg['message']) 
+                        new_cd = MeetingCooldowns(chat_id=message.chat_id, meet_time=datetime.now())
+                        db.add(new_cd)
+                        await db.commit()
+                        return True
         if config_manager.auto_answer:
-            for trigger, answer in config_manager.auto_answer:
+            for trigger, answer in config_manager.auto_answer.items():
                 if message.text.startswith(trigger):
                     await message.answer(answer)
-                    break
+                    return True
         return True
 
     @staticmethod

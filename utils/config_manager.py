@@ -12,7 +12,13 @@ class ConfigManager:
         self.closed_order_notifications: bool = True
         self.refunded_order_notifications: bool = True
         self.new_review_notifications: bool = True
-        self.welcome_msg: str = None
+        self.welcome_msg: dict = {
+            'time': 24,
+            'enabled': False,
+            'ignore_system': True,
+            'only_new': False,
+            'message': 'Привет, {sender}!'
+        }
         self.accept_order_answer: str = None
         self.review_answer: dict = None
         self.blacklist_buyers: list = []
@@ -23,7 +29,7 @@ class ConfigManager:
         '''Загрузка конфига в память при старте'''
         db: AsyncSession = await get_db()
         result = await db.execute(select(BaseConfig))
-        config = result.scalars().all()
+        config = result.scalars().first()
         if config:
             self.new_message_notifications = config.new_message_notifications
             self.blacklist_buyers = config.blacklist_buyers

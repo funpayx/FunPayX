@@ -26,3 +26,23 @@ class Settings:
         else:
             config_manager.blacklist_buyers.append(user_name)
         await config_manager.update_config()
+
+    @staticmethod
+    async def toggle_meeting(action):
+        if action == 'meet_user':
+            config_manager.welcome_msg['enabled'] = not config_manager.welcome_msg['enabled']
+        elif action == 'system':
+            config_manager.welcome_msg['ignore_system'] = not config_manager.welcome_msg['ignore_system']
+        elif action == 'only_new':
+            config_manager.welcome_msg['only_new'] = not config_manager.welcome_msg['only_new']
+        await config_manager.update_config()
+
+    @staticmethod
+    async def meeting_cooldown(cd):
+        config_manager.welcome_msg['time'] = cd
+        await config_manager.update_config()
+
+    @staticmethod
+    async def meeting_text(text):
+        config_manager.welcome_msg['message'] = text
+        await config_manager.update_config()

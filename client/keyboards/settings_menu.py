@@ -107,14 +107,50 @@ def _paginate_blacklist(
     )
     builder.row(
         InlineKeyboardButton(
-            text="← Настройки",
-            callback_data="settings_menu",
+            text="← Меню",
+            callback_data="main_menu",
         )
     )
     return builder.as_markup()
 
-__all__ = (
-    "settings_menu",
-    "_paginate_blacklist",
-    "ITEMS_PER_PAGE",
-)
+def set_meeting() -> InlineKeyboardMarkup:
+    cooldown = config_manager.welcome_msg.get('time')
+    cooldown = int(cooldown)
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text=f'Приветствовать пользователей: {_status_icon(config_manager.welcome_msg['enabled'])}', 
+            callback_data='meeting:toggle:meet_user'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f'Игнорировать системные сообщения: {_status_icon(config_manager.welcome_msg['ignore_system'])}',
+            callback_data='meeting:toggle:system'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f'Только в новых диалогах: {_status_icon(config_manager.welcome_msg['only_new'])}',
+            callback_data='meeting:toggle:only_new'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Изменить приветственное сообщение',
+            callback_data='meeting:change:message'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=f'{"".join([f"{cooldown // 24}дн. " if cooldown >= 24 else "", f"{cooldown % 24}час." if cooldown % 24 != 0 else ""]).strip()}',
+            callback_data='meeting:change:cooldown'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data='main_menu'
+        )
+    )
+    return builder.as_markup()
