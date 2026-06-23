@@ -224,7 +224,7 @@ def command_settings_kb(data: dict) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(
             text="✏️ Редактировать сообщение",
-            callback_data=f"command:edit:msg:{data['command']}"
+            callback_data=f"command:set:msg:{data['command']}"
         )
     )
     builder.row(
@@ -236,7 +236,7 @@ def command_settings_kb(data: dict) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(
             text="📝 Редактировать команду",
-            callback_data=f"command:edit:com:{data['command']}"
+            callback_data=f"command:set:cmd:{data['command']}"
         )
     )
     builder.row(

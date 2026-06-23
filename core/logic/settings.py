@@ -58,3 +58,15 @@ class Settings:
             }
         )
         await config_manager.update_config()
+
+    @staticmethod
+    async def change_cmd_message(command, new_message):
+        command = config_manager.auto_answer['command']
+        command['message'] = new_message
+        await config_manager.update_config()
+
+    @staticmethod
+    async def change_cmd_name(command, new_name):
+        command = config_manager.auto_answer['command']
+        command['command'] = new_name
+        await config_manager.update_config()

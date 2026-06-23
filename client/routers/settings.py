@@ -23,6 +23,12 @@ class NewCommand(StatesGroup):
     waiting_name = State()
     waiting_text = State()
 
+class EditCommandName(StatesGroup):
+    waiting_command = State()
+
+class EditCommandMessage(StatesGroup):
+    waiting_message = State()
+
 @router.callback_query(F.data == 'settings_menu')
 async def open_settings(callback: types.CallbackQuery):
     return await callback.message.edit_text('Выбери опцию:', reply_markup=settings_menu())
@@ -155,16 +161,56 @@ async def new_command_nick(message: types.Message, state: FSMContext):
 @router.message(NewCommand.waiting_text)
 async def new_command_text(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    command, message = data.get('command'), message.text
+    command, msg = data.get('command'), message.text
     settings = Settings()
     await settings.create_command(command, message)
     await message.answer(
-        text=f'Настройки команды {command}\nСообщение: `{message}`',
+        text=f'Настройки команды {command}\nСообщение: `{msg}`',
         parse_mode='markdown',
         reply_markup=command_settings_kb(config_manager.find_command(command)))
 
-@router.callback_query(F.data.startswith('comand:edit:'))
+@router.callback_query(F.data.startswith('command:edit:'))
 async def edit_command(callback: types.CallbackQuery):
     command_name = callback.data.split(':')[-1]
     command = config_manager.find_command(command_name)
-    await message.answer(text=f'Настройки команды {command['command']}\n')
+    await callback.message.edit_text(
+        text=f'Настройки команды {command['command']}\nСообщение: `{command['message']}`',
+        parse_mode='markdown',
+        reply_markup=command_settings_kb(command)
+    )
+
+@router.callback_query(F.data.startswith('command:set:'))
+async def command_set(callback: types.CallbackQuery, state: FSMContext):
+    command = callback.data.split(':')[-1]
+    action = callback.data.split(':')[-2]
+    if action == 'msg':
+        await message.answer('Введите новое сообщение')
+        await state.set_state(EditCommandMessage.waiting_message)
+    elif action == 'cmd':
+        await message.answer('Введите новое название команды')
+        await state.set_state(EditCommandName.waiting_command)
+    await state.update_data(command=command)
+
+@router.message(EditCommandMessage.waiting_message)
+async def edit_command_message(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    command = data.get('command')
+    new_cmd_message = message.text
+    settings = Settings()
+    await settings.change_cmd_message(command, new_cmd_message)
+    await message.answer(
+        text=f'Настройки команды {command}\nСообщение: `{new_cmd_message}`',
+        parse_mode='markdown',
+        reply_markup=command_settings_kb(config_manager.find_command(command)))
+
+@router.message(EditCommandMessage.waiting_message)
+async def edit_command_name(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    command = data.get('command')
+    new_command = message.text
+    settings = Settings()
+    await settings.change_cmd_name(command, new_command)
+    await message.answer(
+        text=f'Настройки команды {new_command}\nСообщение: `{config_manager.auto_answer['command']['message']}`',
+        parse_mode='markdown',
+        reply_markup=command_settings_kb(config_manager.find_command(command)))
