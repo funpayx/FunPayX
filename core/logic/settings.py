@@ -87,3 +87,13 @@ class Settings:
         if cmd['command'] != command
         ]
         await config_manager.update_config()
+
+    @staticmethod
+    async def toggle_global_settings(option):
+        if option == 'raise':
+            config_manager.global_settings['auto_raise'] = not config_manager.global_settings['auto_raise']
+        elif option == 'delivery':
+            config_manager.global_settings['auto_delivery'] = not config_manager.global_settings['auto_delivery']
+        elif option == 'answer':
+            config_manager.global_settings['auto_answer'] = not config_manager.global_settings['auto_answer']
+        await config_manager.update_config()

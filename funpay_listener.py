@@ -7,8 +7,8 @@ from config import GKEY, GSEAL
 from fpworker.routers.message import router as msg_router
 from fpworker.routers.order import router as order_router
 from fpworker.routers.review import router as review_router
-from core.logic.events import EventLogic
 from utils.funpay_manager import FunPayManager
+from core.logic.events import EventLogic
 
 
 async def funpaymain():
@@ -24,6 +24,8 @@ async def funpaymain():
     fp.router.include_router(order_router)
     fp.router.include_router(review_router)
     try:
+        event = EventLogic()
+        asyncio.create_task(event.back_task_manager())
         await fp.runner.start_polling(1, is_background=False)
     except asyncio.CancelledError:
         logging.info('Слушатель получил сигнал завершения')

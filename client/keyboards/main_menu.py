@@ -28,6 +28,12 @@ def main_menu_kb() -> InlineKeyboardMarkup:
             callback_data='command:page:0'
         )
     )
+    builder.row(
+        InlineKeyboardButton(
+            text='⚙️ Глобальные переключатели',
+            callback_data='settings'
+        )
+    )
     return builder.as_markup()
 
 def back_to_main_menu() -> InlineKeyboardMarkup:

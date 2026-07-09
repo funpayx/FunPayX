@@ -4,6 +4,7 @@ import asyncio
 from bot import botmain
 from funpay_listener import funpaymain
 
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.getLogger("httpx").setLevel(logging.WARNING)
 

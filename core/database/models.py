@@ -20,6 +20,7 @@ class BaseConfig(Base):
     review_answer: Mapped[dict] = mapped_column(JSON, nullable=True)
     auto_issue: Mapped[dict] = mapped_column(JSON, nullable=True)
     auto_answer: Mapped[list] = mapped_column(JSON, nullable=True)
+    global_settings: Mapped[dict] = mapped_column(JSON, nullable=True)
     
 class User(Base):
     __tablename__ = 'users'

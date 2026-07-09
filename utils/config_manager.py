@@ -31,6 +31,11 @@ class ConfigManager:
                 'message': 'Привет! Я позвал продавца'
             },
         ]
+        self.global_settings: dict = {
+            'auto_raise': False,
+            'auto_delivery': False,
+            'auto_answer': False
+        }
     
     async def load_config(self):
         '''Загрузка конфига в память при старте'''
@@ -48,6 +53,7 @@ class ConfigManager:
                 self.review_answer = config.review_answer
                 self.auto_issue = config.auto_issue
                 self.auto_answer = config.auto_answer
+                self.global_settings = config.global_settings
 
     async def update_config(self):
         '''Обновление конфига в бд и кеш'''
@@ -65,7 +71,8 @@ class ConfigManager:
                     accept_order_answer = self.accept_order_answer,
                     review_answer=self.review_answer,
                     auto_answer=self.auto_answer,
-                    auto_issue=self.auto_issue
+                    auto_issue=self.auto_issue,
+                    global_settings=self.global_settings
                 )
                 db.add(config)
             else:
@@ -79,6 +86,7 @@ class ConfigManager:
                 config.review_answer=self.review_answer
                 config.auto_answer=self.auto_answer
                 config.auto_issue=self.auto_issue
+                config.global_settings=self.global_settings
             await db.commit()
 
     def find_command(self, command_name):
