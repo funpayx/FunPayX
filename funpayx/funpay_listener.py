@@ -8,6 +8,7 @@ from fpworker.routers.message import router as msg_router
 from fpworker.routers.order import router as order_router
 from fpworker.routers.review import router as review_router
 from utils.funpay_manager import FunPayManager
+from utils.plugin_manager import load_plugins
 from core.logic.events import EventLogic
 
 
@@ -23,6 +24,7 @@ async def funpaymain():
     fp.router.include_router(msg_router)
     fp.router.include_router(order_router)
     fp.router.include_router(review_router)
+    load_plugins(fp)
     try:
         event = EventLogic()
         asyncio.create_task(event.back_task_manager())
