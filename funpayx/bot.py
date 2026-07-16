@@ -1,4 +1,5 @@
 import asyncio
+import os
 import logging
 from aiogram import Bot, Dispatcher, Router
 
@@ -31,6 +32,13 @@ async def botmain():
 
     dp.include_router(error_router)
     dp.include_routers(common_router, setting_router, event_router, global_settings_router)
+
+    restarted_by = os.environ.pop('FPX_RESTARTED_BY', None)
+    if restarted_by:
+        try:
+            await bot.send_message(restarted_by, '✅ Бот перезапущен. Пропиши /start')
+        except Exception as e:
+            logging.warning(f'Не удалось отправить сообщение о запуске: {e}')
     
     logging.info('Бот запущен')
     await dp.start_polling(bot)

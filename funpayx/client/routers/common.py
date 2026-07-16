@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import Router, types, F
 from aiogram.filters.command import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
@@ -5,6 +6,8 @@ from aiogram.fsm.state import State, StatesGroup
 
 from core.logic.user import UserLogic
 from client.keyboards.main_menu import main_menu_kb, plugin_menu
+from utils.restarter import restart_process
+
 
 router = Router()
 
@@ -37,3 +40,12 @@ async def main_menu(callback: types.CallbackQuery, state: FSMContext, db):
 async def handle_plugin_menu(callback: types.CallbackQuery):
     await callback.message.edit_text(f'Меню плагинов', reply_markup=plugin_menu())
     await callback.answer()
+
+@router.message(Command('restart'))
+async def restart_cmd(message: types.Message, db):
+    user = UserLogic(db, message.from_user.id)
+    if not await user.is_authorized():
+        await message.answer('Отказано в доступе!')
+    await message.answer('♻️ Перезапускаюсь...')
+    restart_process(message.from_user.id)
+    await message.answer('Успешно перезапущено', reply_markup=main_menu_kb())

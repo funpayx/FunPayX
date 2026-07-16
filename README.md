@@ -44,6 +44,6 @@ FunPayX поддерживает плагины - можно расширять 
 
 - Python 3.10+
 - aiogram 3.x - Telegram Bot API
-- fpx - асинхронный фреймворк для фанпей
+- fpx - фреймворк для фанпей
 - SQLAlchemy + SQLite - хранение данных
 - asyncio - конкурентность
