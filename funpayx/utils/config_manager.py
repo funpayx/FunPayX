@@ -36,6 +36,7 @@ class ConfigManager:
             'auto_delivery': False,
             'auto_answer': False
         }
+        self.hidden_lots: list = []
     
     async def load_config(self):
         '''Загрузка конфига в память при старте'''
@@ -54,6 +55,7 @@ class ConfigManager:
                 self.auto_issue = config.auto_issue
                 self.auto_answer = config.auto_answer
                 self.global_settings = config.global_settings
+                self.hidden_lots = config.hidden_lots
 
     async def update_config(self):
         '''Обновление конфига в бд и кеш'''
@@ -72,7 +74,8 @@ class ConfigManager:
                     review_answer=self.review_answer,
                     auto_answer=self.auto_answer,
                     auto_issue=self.auto_issue,
-                    global_settings=self.global_settings
+                    global_settings=self.global_settings,
+                    hidden_lots=self.hidden_lots
                 )
                 db.add(config)
             else:
@@ -87,11 +90,17 @@ class ConfigManager:
                 config.auto_answer=self.auto_answer
                 config.auto_issue=self.auto_issue
                 config.global_settings=self.global_settings
+                config.hidden_lots=self.hidden_lots
             await db.commit()
 
     def find_command(self, command_name):
         for command in self.auto_answer:
             if command['command'] == command_name:
                 return command
+
+    def find_hidden_lot(self, lot_id):
+        for lot in self.hidden_lots:
+            if lot == lot_id:
+                return lot
 
 config_manager = ConfigManager()

@@ -42,6 +42,12 @@ def main_menu_kb() -> InlineKeyboardMarkup:
             callback_data='plugins'
         )
     )
+    builder.row(
+        InlineKeyboardButton(
+            text='Управление лотами',
+            callback_data='lot:page:0'
+        )
+    )
     return builder.as_markup()
 
 def back_to_main_menu() -> InlineKeyboardMarkup:

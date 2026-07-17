@@ -15,6 +15,7 @@ from client.routers.settings import router as setting_router
 from client.routers.events import router as event_router
 from client.routers.global_settings import router as global_settings_router
 from client.routers.plugin import router as plugin_manager_router
+from client.routers.lot_manager import router as lot_router
 
 
 router = Router()
@@ -32,7 +33,14 @@ async def botmain():
     dp.update.middleware.register(DbSessionMiddleware(Session))
 
     dp.include_router(error_router)
-    dp.include_routers(common_router, setting_router, event_router, global_settings_router, plugin_manager_router)
+    dp.include_routers(
+        common_router, 
+        setting_router, 
+        event_router, 
+        global_settings_router, 
+        plugin_manager_router,
+        lot_router
+    )
 
     restarted_by = os.environ.pop('FPX_RESTARTED_BY', None)
     if restarted_by:
