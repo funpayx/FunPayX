@@ -3,7 +3,7 @@ import os
 import logging
 from aiogram import Bot, Dispatcher, Router
 
-from config import BOT_TOKEN
+from config import BOT_TOKEN, BOT_DESCRIPTION, BOT_SHORT_DESC
 from client.middlewares.db_session import DbSessionMiddleware
 from core.database.engine import Session, init_db
 from utils.bot_manager import BotManager, DpManager
@@ -23,6 +23,10 @@ router = Router()
 async def error_handler(event: types.ErrorEvent):
     logging.error(f"ОШИБКА: {event.exception}")
 
+async def on_startup(bot: Bot):
+    await bot.set_my_description(BOT_DESCRIPTION)
+    await bot.set_my_short_description(BOT_SHORT_DESC)
+
 async def botmain():
     BotManager.init(BOT_TOKEN)
     bot = BotManager.get()
@@ -41,7 +45,7 @@ async def botmain():
         plugin_manager_router,
         lot_router
     )
-
+    dp.startup.register(on_startup)
     restarted_by = os.environ.pop('FPX_RESTARTED_BY', None)
     if restarted_by:
         try:
