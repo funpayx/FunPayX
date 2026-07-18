@@ -163,7 +163,7 @@ async def new_command_text(message: types.Message, state: FSMContext):
     data = await state.get_data()
     command, msg = data.get('command'), message.text
     settings = Settings()
-    await settings.create_command(command, message)
+    await settings.create_command(command, msg)
     await message.answer(
         text=f'Настройки команды {command}\nСообщение: `{msg}`',
         parse_mode='markdown',

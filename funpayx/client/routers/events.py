@@ -26,6 +26,7 @@ async def answering_message_end(message: types.Message, state: FSMContext):
     chat_id = data.get('chat_id')
     event = EventLogic()
     await event.send_message(chat_id, message.text)
+    await state.clear()
     return await message.answer('Успешно отправлено')
 
 @router.callback_query(F.data.startswith('order:ref:'))
@@ -49,4 +50,5 @@ async def answering_order_end(message: types.Message, state: FSMContext):
     chat_id = data.get('chat_id')
     event = EventLogic()
     await event.send_message(chat_id, message.text)
+    await state.clear()
     return await message.answer('Успешно отправлено')

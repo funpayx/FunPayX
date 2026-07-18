@@ -46,7 +46,7 @@ async def handle_plugin_menu(callback: types.CallbackQuery):
 async def restart_cmd(message: types.Message, db):
     user = UserLogic(db, message.from_user.id)
     if not await user.is_authorized():
-        await message.answer('Отказано в доступе!')
+        return await message.answer('Отказано в доступе!')
     await message.answer('♻️ Перезапускаюсь...')
     restart_process(message.from_user.id)
     await message.answer('Успешно перезапущено', reply_markup=main_menu_kb())

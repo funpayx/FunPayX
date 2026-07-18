@@ -1,9 +1,9 @@
 import asyncio
 import os
 import logging
-from aiogram import Bot, Dispatcher, Router
+from aiogram import Bot, Dispatcher, Router, types
 
-from config import BOT_TOKEN, BOT_DESCRIPTION, BOT_SHORT_DESC
+from config import BOT_TOKEN, BOT_DESCRIPTION, BOT_SHORT_DESC, TELEGRAM_PROXY
 from client.middlewares.db_session import DbSessionMiddleware
 from core.database.engine import Session, init_db
 from utils.bot_manager import BotManager, DpManager
@@ -28,7 +28,7 @@ async def on_startup(bot: Bot):
     await bot.set_my_short_description(BOT_SHORT_DESC)
 
 async def botmain():
-    BotManager.init(BOT_TOKEN)
+    BotManager.init(BOT_TOKEN, TELEGRAM_PROXY)
     bot = BotManager.get()
     DpManager.init()
     dp = DpManager.get()

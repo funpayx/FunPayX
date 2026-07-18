@@ -24,12 +24,17 @@ class FunPayController:
                         cd: MeetingCooldowns = res.scalar_one_or_none()
                         if cd and config_manager.welcome_msg['only_new']:
                             pass
-                        elif not cd or (cd.meet_time + timedelta(hours=config_manager.welcome_msg['time']) < datetime.now()):
+                        elif not cd:
                             await message.answer(config_manager.welcome_msg['message']) 
                             new_cd = MeetingCooldowns(chat_id=message.chat_id, meet_time=datetime.now())
                             db.add(new_cd)
-                            await db.commit()
                             return True
+                        elif (cd.meet_time + timedelta(hours=config_manager.welcome_msg['time']) < datetime.now()):
+                            await message.answer(config_manager.welcome_msg['message'])
+                            cd.meet_time = datetime.now()
+                            db.add(cd)
+                            return True
+                        await db.commit()
         cmd = config_manager.find_command(message.text)
         if cmd:
             if config_manager.global_settings['auto_answer']:
