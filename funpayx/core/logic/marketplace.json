@@ -1,11 +1,11 @@
 {
   "plugins": [
     {
-      "id": "test_plugin",
-      "repo": "funpayx/fpx",
-      "commit": "e0dd7ab56457141f0acc83bdcdc520f5549a3f1c",
-      "path": "fpx",
-      "title": "Пример плагина",
+      "id": "sell_statistic",
+      "repo": "funpayx/sell-statistic",
+      "commit": "7ab537b8a0e5778c64ad8cfb44a614515670d7cb",
+      "path": "",
+      "title": "Статистика продаж",
       "verified_by": "@sanyalca"
     }
   ]
