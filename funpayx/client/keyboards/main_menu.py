@@ -86,6 +86,13 @@ def plugin_menu() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(
+            text='Удаление плагинов',
+            callback_data='plugins:remover',
+            style='primary'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
             text='Главное меню',
             callback_data='main_menu',
             style='danger'

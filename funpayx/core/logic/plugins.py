@@ -3,6 +3,7 @@ import sys
 import httpx
 import io
 import zipfile
+import shutil
 from pathlib import Path
 
 
@@ -40,6 +41,16 @@ class PluginManager:
         for i in market:
             if i['id'] == id:
                 return i
+
+    @staticmethod
+    def delete_plugin(plugin_id):
+        for json_path in PLUGINS_DIR.rglob('plugin.json'):
+            with open(json_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if int(data['id']) == int(plugin_id):
+                    shutil.rmtree(json_path.parent)
+                    return 'Успешно удалено. Используйте /restart для применения изменений.'
+        return 'Папка не найдена по неизвестной причине'
     
     @staticmethod
     async def install_from_marketplace(entry: dict):

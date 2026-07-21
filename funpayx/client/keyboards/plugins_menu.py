@@ -1,6 +1,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from utils.plugin_manager import plugin_callback_list
+
 
 def plugin_marketplace_menu(marketplace_data: list[dict], page: int = 0) -> InlineKeyboardMarkup:
     ITEMS_PER_PAGE = 5 
@@ -47,6 +49,24 @@ def selected_plugin_menu(plugin):
             callback_data=f'install:{plugin['id']}'
         )
     )
+    builder.row(
+        InlineKeyboardButton(
+            text='Главное меню',
+            callback_data=f"main_menu",
+            style='danger'
+        )
+    )
+    return builder.as_markup()
+
+def plugin_remover_menu():
+    builder = InlineKeyboardBuilder()
+    for plugin in plugin_callback_list:
+        builder.row(
+            InlineKeyboardButton(
+                text=plugin['title'],
+                callback_data=f'plugin:del:{plugin['id']}'
+            )
+        )
     builder.row(
         InlineKeyboardButton(
             text='Главное меню',

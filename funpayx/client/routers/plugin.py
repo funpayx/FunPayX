@@ -8,7 +8,7 @@ from aiogram.fsm.state import State, StatesGroup
 from client.keyboards.main_menu import back_to_main_menu
 from utils.bot_manager import BotManager
 from core.logic.plugins import PluginManager
-from client.keyboards.plugins_menu import plugin_marketplace_menu, selected_plugin_menu
+from client.keyboards.plugins_menu import plugin_marketplace_menu, selected_plugin_menu, plugin_remover_menu
 
 
 class PluginState(StatesGroup):
@@ -80,3 +80,14 @@ async def install_plugin(callback: types.CallbackQuery):
     plugin = plugin_manager.find_plugin_by_id(plugin_id)
     await plugin_manager.install_from_marketplace(plugin)
     await callback.message.edit_text('Успешно установлено. Введи /restart чтобы активировать')
+
+@router.callback_query(F.data == 'plugins:remover')
+async def plugin_remover(callback: types.CallbackQuery):
+    await callback.message.edit_text('Выбери плагин, который хочешь удалить', reply_markup=plugin_remover_menu())
+
+@router.callback_query(F.data.startswith('plugin:del:'))
+async def delete_plugin(callback: types.CallbackQuery):
+    plugin_id = callback.data.split(':')[-1]
+    plugin_manager = PluginManager()
+    response = plugin_manager.delete_plugin(plugin_id)
+    await callback.message.edit_text(response, reply_markup=back_to_main_menu())
