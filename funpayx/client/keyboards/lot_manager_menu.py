@@ -57,8 +57,32 @@ def lot_info_manager(lot_id):
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
+            text='Изменить название',
+            callback_data=f'lot:name:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Изменить описание',
+            callback_data=f'lot:desc:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
             text='Сменить цену',
             callback_data=f'lot:price:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Менеджер секретов (автовыдачи)',
+            callback_data=f'lot:secrets:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Обновить наличие лота',
+            callback_data=f'lot:amount:{lot_id}'
         )
     )
     builder.row(
@@ -71,6 +95,12 @@ def lot_info_manager(lot_id):
         InlineKeyboardButton(
             text='Показать лот',
             callback_data=f'lot:toggle:on:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Удалить лот',
+            callback_data=f'lot:remove:{lot_id}'
         )
     )
     builder.row(

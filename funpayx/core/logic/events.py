@@ -47,3 +47,9 @@ class EventLogic:
 
     async def change_lot_price(self, lot_id, new_price):
         await self.fpx.account.editor.change_lot_price(lot_id, new_price)
+
+    async def change_lot_name(self, lot_id, new_name_ru, new_name_en):
+        await self.fpx.account.editor.change_lot_short_desc(lot_id, new_name_ru, new_name_en)
+
+    async def change_lot_desc(self, lot_id, new_desc_ru, new_desc_en):
+        await self.fpx.account.editor.change_lot_desc(lot_id, new_desc_ru, new_desc_en)

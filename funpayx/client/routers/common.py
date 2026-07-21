@@ -31,6 +31,7 @@ async def auth_processing(message: types.Message, state: FSMContext, db):
     
 @router.callback_query(F.data == 'main_menu')
 async def main_menu(callback: types.CallbackQuery, state: FSMContext, db):
+    await state.clear()
     user = UserLogic(db, callback.from_user.id)
     if await user.is_authorized():
         return await callback.message.edit_text('Добро пожаловать', reply_markup=main_menu_kb())
