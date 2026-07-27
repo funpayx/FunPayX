@@ -53,3 +53,16 @@ class EventLogic:
 
     async def change_lot_desc(self, lot_id, new_desc_ru, new_desc_en):
         await self.fpx.account.editor.change_lot_desc(lot_id, new_desc_ru, new_desc_en)
+
+    async def change_lot_amount(self, lot_id, new_amount):
+        await self.fpx.account.editor.change_lot_amount(lot_id, new_amount)
+
+    async def get_lot_secrets(self, lot_id):
+        return await self.fpx.account.lot.get_lot_secrets(lot_id)
+
+    async def update_lot_secrets(self, lot_id, raw_secrets, rewrite):
+        secrets = raw_secrets.split('\n')
+        await self.fpx.account.editor.set_lot_secrets(lot_id, secrets, rewrite)
+
+    async def delete_lot(self, lot_id):
+        await self.fpx.account.editor.delete_lot(lot_id)

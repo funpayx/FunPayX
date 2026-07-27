@@ -3,12 +3,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from core.logic.events import EventLogic
-from client.keyboards.lot_manager_menu import create_lot_paginator, lot_info_manager
+from client.keyboards.lot_manager_menu import create_lot_paginator, lot_info_manager, back_to_lot, change_secrets_kb, lot_delete_confirmer
 from client.keyboards.main_menu import back_to_main_menu, main_menu_kb
 
 
 class PriceChange(StatesGroup):
     price_waiting = State()
+
+class SecretsChange(StatesGroup):
+    secrets_waiting = State()
+
+class AmountChange(StatesGroup):
+    amount_waiting = State()
 
 class NameChange(StatesGroup):
     ru_name_waiting = State()
@@ -42,7 +48,7 @@ async def toggle_lot(callback: types.CallbackQuery, db):
 async def change_lot_price(callback: types.CallbackQuery, state: FSMContext):
     lot_id = callback.data.split(':')[-1]
     await state.update_data(lot_id=lot_id)
-    await callback.message.edit_text('Введите новую сумму денег', reply_markup=back_to_main_menu())
+    await callback.message.edit_text('Введите новую сумму денег', reply_markup=back_to_lot(lot_id))
     await callback.answer()
     await state.set_state(PriceChange.price_waiting)
 
@@ -54,13 +60,13 @@ async def change_lot_price_processing(message: types.Message, state: FSMContext)
     await state.clear()
     event = EventLogic()
     await event.change_lot_price(lot_id, new_price)
-    await message.answer('Успешно изменено', reply_markup=main_menu_kb())
+    await message.answer('Успешно изменено', reply_markup=back_to_lot(lot_id))
 
 @router.callback_query(F.data.startswith('lot:name:'))
 async def lot_name(callback: types.CallbackQuery, state: FSMContext):
     lot_id = callback.data.split(':')[-1]
     await state.update_data(lot_id=lot_id)
-    await callback.message.edit_text(f'Введите новое название лота на русском', reply_markup=back_to_main_menu())
+    await callback.message.edit_text(f'Введите новое название лота на русском', reply_markup=back_to_lot(lot_id))
     await state.set_state(NameChange.ru_name_waiting)
     await callback.answer()
 
@@ -68,12 +74,79 @@ async def lot_name(callback: types.CallbackQuery, state: FSMContext):
 async def lot_name(callback: types.CallbackQuery, state: FSMContext):
     lot_id = callback.data.split(':')[-1]
     await state.update_data(lot_id=lot_id)
-    await callback.message.edit_text(f'Введите новое описание лота на русском', reply_markup=back_to_main_menu())
+    await callback.message.edit_text(f'Введите новое описание лота на русском', reply_markup=back_to_lot(lot_id))
     await state.set_state(DescChange.ru_desc_waiting)
     await callback.answer()
 
+@router.callback_query(F.data.startswith('lot:secrets:'))
+async def change_lot_secrets_handler(callback: types.CallbackQuery):
+    lot_id = callback.data.split(':')[-1]
+    events = EventLogic()
+    raw_secrets = await events.get_lot_secrets(lot_id)
+    secrets = '\n'.join(raw_secrets)
+    if len(secrets) >= 1500:
+        secrets = '\n'.join(raw_secrets[0:10])
+    elif not secrets:
+        secrets = 'Нет секретов'
+    return await callback.message.edit_text(
+        f'**Ваши секреты**\n`{secrets}`\n**Ваши секреты**\nВыберите действие',
+        parse_mode='markdown',
+        reply_markup=change_secrets_kb(lot_id)
+    )
+
+@router.callback_query(F.data.startswith('lot:sec:'))
+async def secrets_lot_change_handler(callback: types.CallbackQuery, state: FSMContext):
+    lot_id = callback.data.split(':')[-1]
+    action = callback.data.split(':')[-2]
+    if action == 'rew':
+        rewrite = True
+    elif action == 'add':
+        rewrite = False
+    await state.update_data(rewrite=rewrite, lot_id=lot_id)
+    await state.set_state(SecretsChange.secrets_waiting)
+    await callback.message.edit_text('Введите секреты в столбец, пример: \nsecret 1\nsecret 2\nsecret 3', reply_markup=back_to_lot(lot_id))
+
+@router.message(SecretsChange.secrets_waiting)
+async def lot_secrets_updater(message: types.Message, state: FSMContext):
+    new_secrets = message.text
+    data = await state.get_data()
+    lot_id, rewrite = data.get('lot_id'), data.get('rewrite')
+    event = EventLogic()
+    await event.update_lot_secrets(lot_id, new_secrets, rewrite)
+    await message.answer(f'Секретны успешно обновлены', reply_markup=back_to_lot(lot_id))
+
+@router.callback_query(F.data.startswith('lot:amount:'))
+async def change_lot_amount_handler(callback: types.CallbackQuery, state: FSMContext):
+    lot_id = callback.data.split(':')[-1]
+    await state.update_data(lot_id=lot_id)
+    await state.set_state(AmountChange.amount_waiting)
+    await callback.message.edit_text(f'Введите число, обозначающее новое кол-во товара', reply_markup=back_to_lot(lot_id))
+
+@router.message(AmountChange.amount_waiting)
+async def change_amount_processing(message: types.Message, state: FSMContext):
+    new_amount = message.text
+    if not new_amount.isdigit():
+        return await message.answer('Нужно ввести число!')
+    data = await state.get_data()
+    event = EventLogic()
+    await event.change_lot_amount(data.get('lot_id'), new_amount)
+    return await message.answer(f'Наличие обновлено, теперь значение: {new_amount}', reply_markup=back_to_lot(data.get('lot_id')))
+
+@router.callback_query(F.data.startswith('lot:delete:ok:'))
+async def delete_lot(callback: types.CallbackQuery):
+    lot_id = callback.data.split(':')[-1]
+    event = EventLogic()
+    await event.delete_lot(lot_id)
+    await callback.message.edit_text('Успешно удалено', reply_markup=main_menu_kb())
+
+@router.callback_query(F.data.startswith('lot:delete:'))
+async def delete_lot(callback: types.CallbackQuery):
+    lot_id = callback.data.split(':')[-1]
+    await callback.message.edit_text(f'Вы уверены?', reply_markup=lot_delete_confirmer(lot_id))
+
 @router.callback_query(F.data.startswith('lot:'))
-async def lot_info(callback: types.CallbackQuery):
+async def lot_info(callback: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     lot_id = callback.data.split(':')[-1]
     event = EventLogic()
     lot = await event.get_lot_info(lot_id)
@@ -93,22 +166,26 @@ async def lot_info(callback: types.CallbackQuery):
 
 @router.message(NameChange.ru_name_waiting)
 async def ru_name_saving(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lot_id = data.get('lot_id')
     name_ru = message.text
     await state.update_data(name_ru=name_ru)
     await message.answer(
         f'Записано. Новое название на русском:\n{name_ru}.\n Теперь введите название на английском',
-        reply_markup=back_to_main_menu()
+        reply_markup=back_to_lot(lot_id)
     )
     await state.set_state(NameChange.en_name_waiting)
 
 @router.message(NameChange.en_name_waiting)
 async def en_name_saving(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lot_id = data.get('lot_id')
     name_en = message.text
     await state.update_data(name_en=name_en)
     await message.answer(
         f'Записано. Новое название на английском:\n{name_en}.\n Вы уверены, что записали всё верно?\nСкопируйте, и введите в чат `Да, согласен` если всё нормально, и `Нет, заново` если что-то не так.',
         parse_mode='markdown',
-        reply_markup=back_to_main_menu()
+        reply_markup=back_to_lot(lot_id)
     )
     await state.set_state(NameChange.confirm_waiting)
 
@@ -123,32 +200,36 @@ async def lot_name_change_confirming(message: types.Message, state: FSMContext):
         event = EventLogic()
         await event.change_lot_name(lot_id, name_ru, name_en)
         await state.clear()
-        await message.answer('Успешно изменено!', reply_markup=back_to_main_menu())
+        await message.answer('Успешно изменено!', reply_markup=back_to_lot(lot_id))
     else:
         await state.clear()
         await state.update_data(lot_id=lot_id)
-        await message.answer('Введите новое название лота на русском', reply_markup=back_to_main_menu())
+        await message.answer('Введите новое название лота на русском', reply_markup=back_to_lot(lot_id))
         await state.set_state(NameChange.ru_name_waiting)
 
 
 @router.message(DescChange.ru_desc_waiting)
 async def ru_name_saving(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lot_id = data.get('lot_id')
     name_ru = message.text
     await state.update_data(name_ru=name_ru)
     await message.answer(
         f'Записано. Новое описание на русском:\n{name_ru}.\n Теперь введите описание на английском',
-        reply_markup=back_to_main_menu()
+        reply_markup=back_to_lot(lot_id)
     )
     await state.set_state(DescChange.en_desc_waiting)
 
 @router.message(DescChange.en_desc_waiting)
 async def en_name_saving(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lot_id = data.get('lot_id')
     name_en = message.text
     await state.update_data(name_en=name_en)
     await message.answer(
         f'Записано. Новое описание на английском:\n{name_en}.\n Вы уверены, что записали всё верно?\nСкопируйте, и введите в чат `Да, согласен` если всё нормально, и `Нет, заново` если что-то не так.',
         parse_mode='markdown',
-        reply_markup=back_to_main_menu()
+        reply_markup=back_to_lot(lot_id)
     )
     await state.set_state(DescChange.confirm_waiting)
 
@@ -163,9 +244,9 @@ async def lot_name_change_confirming(message: types.Message, state: FSMContext):
         event = EventLogic()
         await event.change_lot_desc(lot_id, name_ru, name_en)
         await state.clear()
-        await message.answer('Успешно изменено!', reply_markup=back_to_main_menu())
+        await message.answer('Успешно изменено!', reply_markup=back_to_lot(lot_id))
     else:
         await state.clear()
         await state.update_data(lot_id=lot_id)
-        await message.answer('Введите новое описание лота на русском', reply_markup=back_to_main_menu())
+        await message.answer('Введите новое описание лота на русском', reply_markup=back_to_lot(lot_id))
         await state.set_state(DescChange.ru_desc_waiting)

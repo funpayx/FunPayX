@@ -100,13 +100,65 @@ def lot_info_manager(lot_id):
     builder.row(
         InlineKeyboardButton(
             text='Удалить лот',
-            callback_data=f'lot:remove:{lot_id}'
+            callback_data=f'lot:delete:{lot_id}'
         )
     )
     builder.row(
         InlineKeyboardButton(
             text='Главное меню',
             callback_data='main_menu',
+            style='danger'
+        )
+    )
+    return builder.as_markup()
+
+def back_to_lot(lot_id):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text='Назад к лоту',
+            callback_data=f'lot:{lot_id}',
+            style='danger'
+        )
+    )
+    return builder.as_markup()
+
+def change_secrets_kb(lot_id):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text='Добавить новый товар к уже существующему',
+            callback_data=f'lot:sec:add:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Перезаписать секреты с нуля',
+            callback_data=f'lot:sec:rew:{lot_id}'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Назад к лоту',
+            callback_data=f'lot:{lot_id}',
+            style='danger'
+        )
+    )
+    return builder.as_markup()
+
+def lot_delete_confirmer(lot_id):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text='Согласен',
+            callback_data=f'lot:delete:ok{lot_id}',
+            style='success'
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text='Назад к лоту',
+            callback_data=f'lot:{lot_id}',
             style='danger'
         )
     )
