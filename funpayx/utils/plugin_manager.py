@@ -23,7 +23,7 @@ def plugin_menu() -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(
             text='Команды',
-            callback_data=f'plugin:commands:1',
+            callback_data='plugin:commands:1',
             style='primary'
         )
     )
