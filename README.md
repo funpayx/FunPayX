@@ -21,7 +21,7 @@
    ```env
    BOT_TOKEN=<токен телеграм-бота>
    GKEY=<ваш GoldenKey из FunPay>
-   GSEAL=<ваш GoldenSeal из FunPay>
+   PASSWORD=<пароль для входа в бота, можете придумать любой>
    ```
 
 3. Запустите:

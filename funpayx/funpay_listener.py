@@ -3,7 +3,7 @@ from aiogram import Bot
 import logging
 import asyncio
 
-from config import GKEY, GSEAL
+from config import GKEY
 from fpworker.routers.message import router as msg_router
 from fpworker.routers.order import router as order_router
 from fpworker.routers.review import router as review_router
@@ -14,7 +14,7 @@ from config import FUNPAY_PROXY
 
 
 async def funpaymain():
-    FunPayManager.init(GKEY, GSEAL, FUNPAY_PROXY)
+    FunPayManager.init(GKEY, FUNPAY_PROXY)
     fp = FunPayManager.get()
     from fpworker.di_list import get_db
     from core.logic.chat import ChatLogic

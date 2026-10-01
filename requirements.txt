@@ -10,7 +10,7 @@ anyio==4.14.0
 attrs==26.1.0
 beautifulsoup4==4.15.0
 certifi==2026.5.20
-fpx-engine==0.7.4
+fpx-engine==0.9.0
 frozenlist==1.8.0
 greenlet==3.5.1
 h11==0.16.0
