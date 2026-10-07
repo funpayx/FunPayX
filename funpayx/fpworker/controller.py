@@ -20,7 +20,7 @@ class FunPayController:
         if (
             welcome.get('enabled')
             and config_manager.global_settings.get('auto_answer')
-            and message.is_system != welcome.get('ignore_system')
+            and not (message.is_system and welcome.get('ignore_system'))
         ):
             async with Session() as db:
                 res = await db.execute(
